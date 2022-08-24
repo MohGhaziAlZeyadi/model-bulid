@@ -232,7 +232,7 @@ if __name__ == "__main__":
     print("There are: ",data['TAC_Closing_Summing_up'].value_counts(), " value_counts in TAC_Closing_Summing_up")
     
     uniq_TAC_Closing_Summing_up = data['TAC_Closing_Summing_up'].unique() #returns a list of unique values
-print(type(uniq_TAC_Closing_Summing_up))
+    print(type(uniq_TAC_Closing_Summing_up))
     
     #preporssing DTC col
     data['DTC'] = data['DTC'].str.replace('_',' ')
