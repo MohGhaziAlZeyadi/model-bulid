@@ -285,6 +285,6 @@ if __name__ == "__main__":
     print(f"Number of rows in validation set: {len(val_df)}")
     print(f"Number of rows in test set: {len(test_df)}")
     
-    train_df.to_csv(os.path.join(f"{base_dir}/train/", "train_df.csv") 
-    test_df.to_csv(os.path.join(f"{base_dir}/test/", "test_df.csv")
-    val_df.to_csv(os.path.join(f"{base_dir}/validation/", "val_df.csv") 
+    train_df.to_csv(os.path.join(f"{base_dir}/train/train_df.csv") 
+    test_df.to_csv(os.path.join(f"{base_dir}/test/test_df.csv")
+    val_df.to_csv(os.path.join(f"{base_dir}/validation/val_df.csv") 
