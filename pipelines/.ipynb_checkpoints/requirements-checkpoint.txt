@@ -1,0 +1,8 @@
+install --upgrade pip
+install tensorflow==2.6.2
+install pickle-mixin
+install keras==2.6.0
+install protobuf==3.20.
+install sklearn
+pip install matplotlib
+pip install pandas

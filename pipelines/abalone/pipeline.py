@@ -156,9 +156,12 @@ def get_pipeline(
     )
     input_data = ParameterString(
         name="InputDataUrl",
-        default_value=f"s3://sagemaker-servicecatalog-seedcode-{region}/dataset/abalone-dataset.csv",
+        #default_value= f"s3://sagemaker-eu-west-2-692736957113/sagemaker/CaliforniaHousingPricesData/data/housing.csv",
+        
+        default_value= f"s3://mg-data-neuron/FeedbackExport Apr_2021.csv",
     )
-
+    
+      
     # processing step for feature engineering
     sklearn_processor = SKLearnProcessor(
         framework_version="0.23-1",
@@ -325,7 +328,8 @@ def get_pipeline(
             model_approval_status,
             input_data,
         ],
-        steps=[step_process, step_train, step_eval, step_cond],
+        #steps=[step_process, step_train, step_eval, step_cond],
+        steps=[step_process],
         sagemaker_session=pipeline_session,
     )
     return pipeline
