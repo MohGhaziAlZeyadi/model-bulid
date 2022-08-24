@@ -267,7 +267,7 @@ if __name__ == "__main__":
     #The dataset has a class imbalance problem. So, to have a fair evaluation result,
     #we need to ensure the datasets are sampled with stratification.
 
-    test_split = 0.25
+    test_split = 0.2
 
     # Initial train and test split.
     train_df, test_df = train_test_split(
