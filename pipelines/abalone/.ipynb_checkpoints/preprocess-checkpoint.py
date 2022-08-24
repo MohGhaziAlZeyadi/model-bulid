@@ -56,7 +56,7 @@ if __name__ == "__main__":
   
     # Read each CSV file into DataFrame
     # This creates a list of dataframes
-    data= pd.read_csv(fn, encoding='latin1',  on_bad_lines='skip')
+    data= pd.read_csv(fn, encoding='latin1')
     
     data = data.drop(['Submit Date', 'Dealer', 'VIN', 'No. of Vehicles', 'Engine', 'CSN No',
            'Off Line Date', 'Analogy Car Info','Remark', 'TAC Closing Date',
