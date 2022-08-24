@@ -158,7 +158,7 @@ def get_pipeline(
         name="InputDataUrl",
         #default_value= f"s3://sagemaker-eu-west-2-692736957113/sagemaker/CaliforniaHousingPricesData/data/housing.csv",
         
-        default_value= f"neuron-raw-data/raw-data/mg/raw-by-months/FeedbackExport_Apr_2021.csv",
+        default_value= f"s3://sagemaker-eu-west-2-484305308880/sagemaker/mg/FeedbackExport_Apr_2021.csv",
     )
     
       
