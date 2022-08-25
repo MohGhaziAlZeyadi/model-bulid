@@ -33,7 +33,8 @@ def parse_args():
     
     parser.add_argument('--test', type=str, default=os.environ.get('SM_CHANNEL_TEST'))
     
-    parser.add_argument('--validation', type=str, default=os.environ.get('SM_CHANNEL_VALIDATION'))
+    #parser.add_argument('--validation', type=str, default=os.environ.get('SM_CHANNEL_VALIDATION'))
+    parser.add_argument('--validation', type=str, required=False, default=os.environ.get('SM_CHANNEL_VALIDATION')) 
 
     # model directory
     parser.add_argument('--sm-model-dir', type=str, default=os.environ.get('SM_MODEL_DIR')) #  A string that represents the path where the training job writes the model artifacts to. After training, artifacts in this directory are uploaded to S3 for model hosting.
