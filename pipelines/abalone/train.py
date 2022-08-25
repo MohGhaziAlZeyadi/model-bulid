@@ -47,19 +47,19 @@ def install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
     
 def get_train_data(train_dir):    
-    train_df = pd.read_csv(os.path.join(f"{train_dir}/train/train_df.csv"))    
+    train_df = pd.read_csv(os.path.join(f"{train_dir}/train_df.csv"))    
     print('train_df shape: ', train_df.shape)
     return train_df
 
 
 def get_test_data(test_dir):
-    test_df = pd.read_csv(os.path.join(f"{test_dir}/test/test_df.csv"))    
+    test_df = pd.read_csv(os.path.join(f"{test_dir}/test_df.csv"))    
     print('test_df shape: ', test_df.shape)
     return test_df
 
 
 def get_validation_data(validation_dir):
-    validation_df = pd.read_csv(os.path.join(f"{validation_dir}/validation/val_df.csv"))    
+    validation_df = pd.read_csv(os.path.join(f"{validation_dir}/val_df.csv"))    
     print('validation_df shape: ', validation_df.shape)
     return validation_df
 
