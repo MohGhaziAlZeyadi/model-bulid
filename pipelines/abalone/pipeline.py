@@ -48,6 +48,25 @@ from sagemaker.model import Model
 from sagemaker.workflow.pipeline_context import PipelineSession
 
 
+
+from sagemaker.workflow.condition_step import ConditionStep
+from sagemaker.workflow.conditions import ConditionGreaterThanOrEqualTo
+from sagemaker.workflow.functions import JsonGet
+from sagemaker.workflow.parameters import ParameterInteger, ParameterString
+from sagemaker.workflow.pipeline import Pipeline
+from sagemaker.workflow.properties import PropertyFile
+from sagemaker.workflow.step_collections import RegisterModel
+from sagemaker.workflow.steps import ProcessingStep, TrainingStep
+from sagemaker.workflow.pipeline_context import PipelineSession
+
+from sagemaker.tensorflow import TensorFlow
+from sagemaker.workflow.steps import TrainingStep
+
+import time
+current_time = time.strftime("%m-%d-%H-%M-%S", time.localtime())
+###############################################################################################
+
+
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -186,55 +205,113 @@ def get_pipeline(
         step_args=step_args,
     )
 
-    # training step for generating model artifacts
-    model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/AbaloneTrain"
-    image_uri = sagemaker.image_uris.retrieve(
-        framework="xgboost",
-        region=region,
-        version="1.0-1",
-        py_version="py3",
-        instance_type=training_instance_type,
-    )
-    xgb_train = Estimator(
-        image_uri=image_uri,
-        instance_type=training_instance_type,
+    # # training step for generating model artifacts
+    # model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/AbaloneTrain"
+    # image_uri = sagemaker.image_uris.retrieve(
+    #     framework="xgboost",
+    #     region=region,
+    #     version="1.0-1",
+    #     py_version="py3",
+    #     instance_type=training_instance_type,
+    # )
+    # xgb_train = Estimator(
+    #     image_uri=image_uri,
+    #     instance_type=training_instance_type,
+    #     instance_count=1,
+    #     output_path=model_path,
+    #     base_job_name=f"{base_job_prefix}/abalone-train",
+    #     sagemaker_session=pipeline_session,
+    #     role=role,
+    # )
+    # xgb_train.set_hyperparameters(
+    #     objective="reg:linear",
+    #     num_round=50,
+    #     max_depth=5,
+    #     eta=0.2,
+    #     gamma=4,
+    #     min_child_weight=6,
+    #     subsample=0.7,
+    #     silent=0,
+    # )
+    # step_args = xgb_train.fit(
+    #     inputs={
+    #         "train": TrainingInput(
+    #             s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
+    #                 "train"
+    #             ].S3Output.S3Uri,
+    #             content_type="text/csv",
+    #         ),
+    #         "validation": TrainingInput(
+    #             s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
+    #                 "validation"
+    #             ].S3Output.S3Uri,
+    #             content_type="text/csv",
+    #         ),
+    #     },
+    # )
+    # step_train = TrainingStep(
+    #     name="TrainAbaloneModel",
+    #     step_args=step_args,
+    # )
+    
+    
+    
+        ##############################################
+    # Training step for generating model artifacts
+    ##############################################
+#     model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/AbaloneTrain"
+    
+        
+#     image_uri = sagemaker.image_uris.retrieve(
+#         framework="xgboost",  # we are using the Sagemaker built in xgboost algorithm
+#         region=region,
+#         version="1.0-1",
+#         py_version="py3",
+#         instance_type="ml.m5.large",
+#     )
+    
+
+   
+
+    # Where to store the trained model
+    model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/model/"
+    
+
+    hyperparameters = {"epochs": 100 }
+    tensorflow_version = "2.4.1"
+    python_version = "py37"
+
+    tf2_estimator = TensorFlow(
+        source_dir=BASE_DIR,
+        entry_point="train.py",
+        instance_type="ml.m5.large",
         instance_count=1,
-        output_path=model_path,
-        base_job_name=f"{base_job_prefix}/abalone-train",
-        sagemaker_session=pipeline_session,
+        framework_version=tensorflow_version,
         role=role,
-    )
-    xgb_train.set_hyperparameters(
-        objective="reg:linear",
-        num_round=50,
-        max_depth=5,
-        eta=0.2,
-        gamma=4,
-        min_child_weight=6,
-        subsample=0.7,
-        silent=0,
-    )
-    step_args = xgb_train.fit(
-        inputs={
-            "train": TrainingInput(
-                s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
-                    "train"
-                ].S3Output.S3Uri,
-                content_type="text/csv",
-            ),
-            "validation": TrainingInput(
-                s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
-                    "validation"
-                ].S3Output.S3Uri,
-                content_type="text/csv",
-            ),
-        },
-    )
-    step_train = TrainingStep(
-        name="TrainAbaloneModel",
-        step_args=step_args,
+        base_job_name=f"{base_job_prefix}/abalone-train",
+        output_path=model_path,
+        hyperparameters=hyperparameters,
+        py_version=python_version,
     )
 
+    #Use the tf2_estimator in a Sagemaker pipelines ProcessingStep.
+    #NOTE how the input to the training job directly references the output of the previous step.
+    step_train = TrainingStep(
+    name="TrainAbaloneModel",
+    estimator=tf2_estimator,
+    inputs={
+        "train":
+        TrainingInput(s3_data=step_process.properties.ProcessingOutputConfig.Outputs["train"].S3Output.S3Uri,content_type="text/csv",),
+            
+        "test":
+        TrainingInput(s3_data=step_process.properties.ProcessingOutputConfig.Outputs["test"].S3Output.S3Uri,content_type="text/csv",),
+        },
+    )
+
+    
+    
+    
+    
     # processing step for evaluation
     script_eval = ScriptProcessor(
         image_uri=image_uri,
@@ -273,6 +350,12 @@ def get_pipeline(
         step_args=step_args,
         property_files=[evaluation_report],
     )
+    
+    
+    
+    
+    
+    
 
     # register model step that will be conditionally executed
     model_metrics = ModelMetrics(
@@ -330,7 +413,7 @@ def get_pipeline(
             input_data,
         ],
         #steps=[step_process, step_train, step_eval, step_cond],
-        steps=[step_process],
+        steps=[step_process, step_train],
         sagemaker_session=pipeline_session,
     )
     return pipeline
