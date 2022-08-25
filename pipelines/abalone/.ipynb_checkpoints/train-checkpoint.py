@@ -33,7 +33,7 @@ def parse_args():
     
     parser.add_argument('--test', type=str, default=os.environ.get('SM_CHANNEL_TEST'))
     
-    parser.add_argument('--validation', type=str, default=os.environ.get('SM_CHANNEL_VALIDATION'))
+    parser.add_argument('--validation', type=str, default=os.environ.get('SM_CHANNEL_TEST'))
     #parser.add_argument('--validation', type=str, required=False, default=os.environ.get('SM_CHANNEL_VALIDATION')) 
 
     # model directory

@@ -287,4 +287,4 @@ if __name__ == "__main__":
     
     train_df.to_csv(os.path.join(f"{base_dir}/train/train_df.csv"))
     test_df.to_csv(os.path.join(f"{base_dir}/test/test_df.csv"))
-    val_df.to_csv(os.path.join(f"{base_dir}/validation/val_df.csv")) 
+    val_df.to_csv(os.path.join(f"{base_dir}/test/val_df.csv")) 
