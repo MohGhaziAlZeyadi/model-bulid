@@ -255,23 +255,9 @@ def get_pipeline(
     # )
     
     
-    
-        ##############################################
+    ##############################################
     # Training step for generating model artifacts
     ##############################################
-#     model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/AbaloneTrain"
-    
-        
-#     image_uri = sagemaker.image_uris.retrieve(
-#         framework="xgboost",  # we are using the Sagemaker built in xgboost algorithm
-#         region=region,
-#         version="1.0-1",
-#         py_version="py3",
-#         instance_type="ml.m5.large",
-#     )
-    
-
-   
 
     # Where to store the trained model
     model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/model/"
@@ -308,8 +294,7 @@ def get_pipeline(
         },
     )
 
-    
-    
+
     
     
 #     # processing step for evaluation
@@ -401,6 +386,7 @@ def get_pipeline(
 #         if_steps=[step_register],
 #         else_steps=[],
 #     )
+
 
     # pipeline instance
     pipeline = Pipeline(
