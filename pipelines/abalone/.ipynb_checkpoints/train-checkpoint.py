@@ -226,7 +226,7 @@ if __name__ == "__main__":
     
     
     # save model
-    model.save(args.sm_model_dir+ '/1')
+    shallow_mlp_model.save(args.sm_model_dir+ '/1')
     print("The model saved into:- ", args.sm_model_dir+ '/1')
    
     print("***************Loaded Model*******************")
