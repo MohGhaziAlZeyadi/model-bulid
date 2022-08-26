@@ -10,6 +10,7 @@ from tensorflow import keras
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Flatten, Dense, Softmax
 from tensorflow.keras import optimizers
+from tensorflow.keras import layers
 
 import json
 import pathlib
