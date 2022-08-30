@@ -221,7 +221,7 @@ if __name__ == "__main__":
     
     print("Tranning finish")
     
-    _, categorical_acc = shallow_mlp_model.evaluate(test_dataset)
+    categorical_acc = shallow_mlp_model.evaluate(test_dataset)
     print(f"Categorical accuracy on the test set: {round(categorical_acc * 100, 2)}%.")
     
     
@@ -234,5 +234,5 @@ if __name__ == "__main__":
 
     model_load = tf.keras.models.load_model(args.sm_model_dir+ '/1')
     print(model_load.summary())
-     _, scores_loaded = model_load.evaluate(test_dataset)
+    scores_loaded = model_load.evaluate(test_dataset)
     print(f"Categorical accuracy on the test set from loaded model is: {round(scores_loaded * 100, 2)}%.")
