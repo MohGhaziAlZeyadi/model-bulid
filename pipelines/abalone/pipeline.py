@@ -264,7 +264,7 @@ def get_pipeline(
     
 
     hyperparameters = {"epochs": 100 }
-    tensorflow_version = "2.6.2"
+    tensorflow_version = "2.6.3"
     python_version = "py38"
 
     tf2_estimator = TensorFlow(
