@@ -25,6 +25,7 @@ def get_test_data(test_dir):
     return test_df
 
 def make_dataset(dataframe, is_train=True):
+    batch_size = 64
     labels = tf.ragged.constant(dataframe["TAC_Closing_Summing_up"].values)
     label_binarized = lookup(labels).numpy()
     dataset = tf.data.Dataset.from_tensor_slices((dataframe["Fault Symptom"].values, label_binarized))
