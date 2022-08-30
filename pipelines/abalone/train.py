@@ -234,6 +234,8 @@ if __name__ == "__main__":
     print("***************Loaded Model*******************")
 
     model_load = tf.keras.models.load_model(args.sm_model_dir+ '/1')
+    print("Loaded Model...)
     print(model_load.summary())
     scores_loaded = model_load.evaluate(test_dataset)
-    print(f"Categorical accuracy on the test set from loaded model is: {round(scores_loaded * 100, 2)}%.")
+    print("Categorical accuracy: ", scores_loaded)
+    #print(f"Categorical accuracy on the test set from loaded model is: {round(scores_loaded * 100, 2)}%.")
