@@ -264,7 +264,7 @@ def get_pipeline(
     
 
     hyperparameters = {"epochs": 100 }
-    tensorflow_version = "2.6.0"
+    tensorflow_version = "2.6.2"
     python_version = "py38"
 
     tf2_estimator = TensorFlow(
@@ -428,7 +428,7 @@ def get_pipeline(
             input_data,
         ],
         #steps=[step_process, step_train, step_eval, step_cond],
-        steps=[step_process, step_train, step_eval],
+        steps=[step_process, step_train, step_eval, step_cond],
         sagemaker_session=pipeline_session,
     )
     return pipeline
