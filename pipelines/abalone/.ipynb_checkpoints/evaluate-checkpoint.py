@@ -32,6 +32,11 @@ def make_dataset(dataframe, is_train=True):
     dataset = dataset.shuffle(batch_size * 10) if is_train else dataset
     return dataset.batch(batch_size)
 
+def invert_multi_hot(encoded_labels):
+    """Reverse a single multi-hot encoded label to a tuple of vocab terms."""
+    hot_indices = np.argwhere(encoded_labels == 1.0)[..., 0]
+    return np.take(vocab, hot_indices)
+
 
 if __name__ == "__main__":
     
