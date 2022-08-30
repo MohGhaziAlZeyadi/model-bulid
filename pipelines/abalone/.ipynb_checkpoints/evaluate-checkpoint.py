@@ -139,6 +139,7 @@ if __name__ == "__main__":
                 "value": acc,
                 "standard_deviation": "NaN",
         },
+     }
     }
 
     print("Classification report:\n{}".format(report_dict))
