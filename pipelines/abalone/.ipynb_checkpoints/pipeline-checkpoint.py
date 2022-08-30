@@ -366,55 +366,55 @@ def get_pipeline(
     
     
     
+    #########################################################
+    # Register model step that will be conditionally executed
+    #########################################################
     
+    model_metrics = ModelMetrics(
+            model_statistics=MetricsSource(
+            s3_uri="{}/evaluation.json".format(step_eval.arguments["ProcessingOutputConfig"]["Outputs"][0]["S3Output"]["S3Uri"]),
+            content_type="application/json",
+        )
+    )
+    
+
+
+    # Register model step that will be conditionally executed
+    step_register = RegisterModel(
+        name="RegisterAbaloneModel",
+        estimator=tf2_estimator,
+        model_data=step_train.properties.ModelArtifacts.S3ModelArtifacts,
+        content_types=["text/csv"],
+        response_types=["text/csv"],
+        inference_instances=["ml.m5.large", "ml.m5.large"],
+        transform_instances=["ml.m5.large"],
+        model_package_group_name=model_package_group_name,
+        approval_status=model_approval_status,
+        model_metrics=model_metrics,
+    )
     
     
     
 
-#     # register model step that will be conditionally executed
-#     model_metrics = ModelMetrics(
-#         model_statistics=MetricsSource(
-#             s3_uri="{}/evaluation.json".format(
-#                 step_eval.arguments["ProcessingOutputConfig"]["Outputs"][0]["S3Output"]["S3Uri"]
-#             ),
-#             content_type="application/json"
-#         )
-#     )
-#     model = Model(
-#         image_uri=image_uri,
-#         model_data=step_train.properties.ModelArtifacts.S3ModelArtifacts,
-#         sagemaker_session=pipeline_session,
-#         role=role,
-#     )
-#     step_args = model.register(
-#         content_types=["text/csv"],
-#         response_types=["text/csv"],
-#         inference_instances=["ml.t2.medium", "ml.m5.large"],
-#         transform_instances=["ml.m5.large"],
-#         model_package_group_name=model_package_group_name,
-#         approval_status=model_approval_status,
-#         model_metrics=model_metrics,
-#     )
-#     step_register = ModelStep(
-#         name="RegisterAbaloneModel",
-#         step_args=step_args,
-#     )
+    
+    
 
-#     # condition step for evaluating model quality and branching execution
-#     cond_lte = ConditionLessThanOrEqualTo(
-#         left=JsonGet(
-#             step_name=step_eval.name,
-#             property_file=evaluation_report,
-#             json_path="regression_metrics.mse.value"
-#         ),
-#         right=6.0,
-#     )
-#     step_cond = ConditionStep(
-#         name="CheckMSEAbaloneEvaluation",
-#         conditions=[cond_lte],
-#         if_steps=[step_register],
-#         else_steps=[],
-#     )
+    
+    
+    cond_lte = ConditionLessThanOrEqualTo(
+        left=JsonGet(
+            step_name=step_eval.name,
+            property_file=evaluation_report,
+            json_path="eval_accuracy"
+        ),
+        right=0.6,
+    )
+    step_cond = ConditionStep(
+        name="CheckMSEAbaloneEvaluation",
+        conditions=[cond_lte],
+        if_steps=[step_register],
+        else_steps=[],
+    )
 
 
     # pipeline instance
@@ -428,7 +428,7 @@ def get_pipeline(
             input_data,
         ],
         #steps=[step_process, step_train, step_eval, step_cond],
-        steps=[step_process, step_train, step_eval],
+        steps=[step_process, step_train, step_eval, step_cond],
         sagemaker_session=pipeline_session,
     )
     return pipeline
