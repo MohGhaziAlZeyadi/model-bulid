@@ -222,7 +222,8 @@ if __name__ == "__main__":
     print("Tranning finish")
     
     categorical_acc = shallow_mlp_model.evaluate(test_dataset)
-    print(f"Categorical accuracy on the test set: {round(categorical_acc * 100, 2)}%.")
+    print("Categorical accuracy: ", categorical_acc)
+    #print(f"Categorical accuracy on the test set: {round(categorical_acc * 100, 2)}%.")
     
     
     
