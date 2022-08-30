@@ -54,6 +54,9 @@ if __name__ == "__main__":
     import tensorflow as tf
     from tensorflow import keras
     from tensorflow.keras import optimizers
+    from tensorflow.keras import Sequential
+    from tensorflow.keras.layers import Flatten, Dense, Softmax
+    from tensorflow.keras import layers
 
     
     train_dir = "/opt/ml/processing/train/"
