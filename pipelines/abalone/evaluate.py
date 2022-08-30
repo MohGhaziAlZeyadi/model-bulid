@@ -45,7 +45,7 @@ if __name__ == "__main__":
     print("Version info.")
     print (sys.version_info)
 
-    install("tensorflow==2.6.2")
+    install("tensorflow==2.6.0")
     model_path = f"/opt/ml/processing/model/model.tar.gz"
     with tarfile.open(model_path, "r:gz") as tar:
         tar.extractall("./model")

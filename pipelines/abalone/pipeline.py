@@ -264,7 +264,7 @@ def get_pipeline(
     
 
     hyperparameters = {"epochs": 100 }
-    tensorflow_version = "2.6.2"
+    tensorflow_version = "2.6.0"
     python_version = "py38"
 
     tf2_estimator = TensorFlow(
@@ -401,20 +401,20 @@ def get_pipeline(
 
     
     
-#     cond_lte = ConditionLessThanOrEqualTo(
-#         left=JsonGet(
-#             step_name=step_eval.name,
-#             property_file=evaluation_report,
-#             json_path="eval_accuracy"
-#         ),
-#         right=0.6,
-#     )
-#     step_cond = ConditionStep(
-#         name="CheckMSEAbaloneEvaluation",
-#         conditions=[cond_lte],
-#         if_steps=[step_register],
-#         else_steps=[],
-#     )
+    cond_lte = ConditionLessThanOrEqualTo(
+        left=JsonGet(
+            step_name=step_eval.name,
+            property_file=evaluation_report,
+            json_path="eval_accuracy"
+        ),
+        right=0.6,
+    )
+    step_cond = ConditionStep(
+        name="CheckMSEAbaloneEvaluation",
+        conditions=[cond_lte],
+        if_steps=[step_register],
+        else_steps=[],
+    )
 
 
     # pipeline instance
