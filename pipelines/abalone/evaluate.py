@@ -57,6 +57,13 @@ if __name__ == "__main__":
     from tensorflow.keras import Sequential
     from tensorflow.keras.layers import Flatten, Dense, Softmax
     from tensorflow.keras import layers
+    
+    #varibale used for make_dataset function
+    max_seqlen = 512
+    #batch_size = 128
+    batch_size = 128
+    padding_token = "<pad>"
+    auto = tf.data.AUTOTUNE
 
     
     train_dir = "/opt/ml/processing/train/"
