@@ -297,44 +297,51 @@ def get_pipeline(
 
     
     
-#     # processing step for evaluation
-#     script_eval = ScriptProcessor(
-#         image_uri=image_uri,
-#         command=["python3"],
-#         instance_type=processing_instance_type,
-#         instance_count=1,
-#         base_job_name=f"{base_job_prefix}/script-abalone-eval",
-#         sagemaker_session=pipeline_session,
-#         role=role,
-#     )
-#     step_args = script_eval.run(
-#         inputs=[
-#             ProcessingInput(
-#                 source=step_train.properties.ModelArtifacts.S3ModelArtifacts,
-#                 destination="/opt/ml/processing/model",
-#             ),
-#             ProcessingInput(
-#                 source=step_process.properties.ProcessingOutputConfig.Outputs[
-#                     "test"
-#                 ].S3Output.S3Uri,
-#                 destination="/opt/ml/processing/test",
-#             ),
-#         ],
-#         outputs=[
-#             ProcessingOutput(output_name="evaluation", source="/opt/ml/processing/evaluation"),
-#         ],
-#         code=os.path.join(BASE_DIR, "evaluate.py"),
-#     )
-#     evaluation_report = PropertyFile(
-#         name="AbaloneEvaluationReport",
-#         output_name="evaluation",
-#         path="evaluation.json",
-#     )
-#     step_eval = ProcessingStep(
-#         name="EvaluateAbaloneModel",
-#         step_args=step_args,
-#         property_files=[evaluation_report],
-#     )
+    # processing step for evaluation
+    script_eval = ScriptProcessor(
+        image_uri=image_uri,
+        command=["python3"],
+        instance_type=processing_instance_type,
+        instance_count=1,
+        base_job_name=f"{base_job_prefix}/script-abalone-eval",
+        sagemaker_session=pipeline_session,
+        role=role,
+    )
+    step_args = script_eval.run(
+        inputs=[
+            ProcessingInput(
+                source=step_train.properties.ModelArtifacts.S3ModelArtifacts,
+                destination="/opt/ml/processing/model",
+            ),
+            ProcessingInput(
+                source=step_process.properties.ProcessingOutputConfig.Outputs[
+                    "test"
+                ].S3Output.S3Uri,
+                destination="/opt/ml/processing/test",
+            ),
+            
+            ProcessingInput(
+                source=step_process.properties.ProcessingOutputConfig.Outputs[
+                    "train"
+                ].S3Output.S3Uri,
+                destination="/opt/ml/processing/train",
+            ),
+        ],
+        outputs=[
+            ProcessingOutput(output_name="evaluation", source="/opt/ml/processing/evaluation"),
+        ],
+        code=os.path.join(BASE_DIR, "evaluate.py"),
+    )
+    evaluation_report = PropertyFile(
+        name="AbaloneEvaluationReport",
+        output_name="evaluation",
+        path="evaluation.json",
+    )
+    step_eval = ProcessingStep(
+        name="EvaluateAbaloneModel",
+        step_args=step_args,
+        property_files=[evaluation_report],
+    )
     
     
     
@@ -399,7 +406,7 @@ def get_pipeline(
             input_data,
         ],
         #steps=[step_process, step_train, step_eval, step_cond],
-        steps=[step_process, step_train],
+        steps=[step_process, step_train, step_eval],
         sagemaker_session=pipeline_session,
     )
     return pipeline
