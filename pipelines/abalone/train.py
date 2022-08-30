@@ -110,7 +110,7 @@ if __name__ == "__main__":
     
     #install("tensorflow==2.6.2")
     install("pickle-mixin")
-    install("keras==2.6.3")
+    install("keras==2.6.0")
 
 
     args, _ = parse_args()
