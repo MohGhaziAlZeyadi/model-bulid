@@ -401,20 +401,20 @@ def get_pipeline(
 
     
     
-    cond_lte = ConditionLessThanOrEqualTo(
-        left=JsonGet(
-            step_name=step_eval.name,
-            property_file=evaluation_report,
-            json_path="eval_accuracy"
-        ),
-        right=0.6,
-    )
-    step_cond = ConditionStep(
-        name="CheckMSEAbaloneEvaluation",
-        conditions=[cond_lte],
-        if_steps=[step_register],
-        else_steps=[],
-    )
+#     cond_lte = ConditionLessThanOrEqualTo(
+#         left=JsonGet(
+#             step_name=step_eval.name,
+#             property_file=evaluation_report,
+#             json_path="eval_accuracy"
+#         ),
+#         right=0.6,
+#     )
+#     step_cond = ConditionStep(
+#         name="CheckMSEAbaloneEvaluation",
+#         conditions=[cond_lte],
+#         if_steps=[step_register],
+#         else_steps=[],
+#     )
 
 
     # pipeline instance
@@ -428,7 +428,7 @@ def get_pipeline(
             input_data,
         ],
         #steps=[step_process, step_train, step_eval, step_cond],
-        steps=[step_process, step_train, step_eval, step_cond],
+        steps=[step_process, step_train, step_eval],
         sagemaker_session=pipeline_session,
     )
     return pipeline
