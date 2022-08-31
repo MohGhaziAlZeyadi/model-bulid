@@ -69,6 +69,93 @@ current_time = time.strftime("%m-%d-%H-%M-%S", time.localtime())
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
+iam = boto3.client('iam')
+
+
+
+def create_s3_lambda_role(role_name):
+    try:
+        response = iam.create_role(
+            RoleName = role_name,
+            AssumeRolePolicyDocument = json.dumps({
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "lambda.amazonaws.com"
+                        },
+                        "Action": "sts:AssumeRole"
+                    }
+                ]
+            }),
+            Description='Role for Lambda to provide S3 read only access'
+        )
+
+        role_arn = response['Role']['Arn']
+
+        response = iam.attach_role_policy(
+            RoleName=role_name,
+            PolicyArn='arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        )
+
+        response = iam.attach_role_policy(
+            PolicyArn='arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess',
+            RoleName=role_name
+        )
+
+        print('Waiting 30 seconds for the IAM role to propagate')
+        time.sleep(30)
+        return role_arn
+
+    except iam.exceptions.EntityAlreadyExistsException:
+        print(f'Using ARN from existing role: {role_name}')
+        response = iam.get_role(RoleName=role_name)
+        return response['Role']['Arn']
+    
+    
+def create_sagemaker_lambda_role(role_name):
+    try:
+        response = iam.create_role(
+            RoleName = role_name,
+            AssumeRolePolicyDocument = json.dumps({
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": "lambda.amazonaws.com"
+                        },
+                        "Action": "sts:AssumeRole"
+                    }
+                ]
+            }),
+            Description='Role for Lambda to call SageMaker functions'
+        )
+
+        role_arn = response['Role']['Arn']
+
+        response = iam.attach_role_policy(
+            RoleName=role_name,
+            PolicyArn='arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        )
+
+        response = iam.attach_role_policy(
+            PolicyArn='arn:aws:iam::aws:policy/AmazonSageMakerFullAccess',
+            RoleName=role_name
+        )
+
+        print('Waiting 30 seconds for the IAM role to propagate')
+        time.sleep(30)
+        return role_arn
+
+    except iam.exceptions.EntityAlreadyExistsException:
+        print(f'Using ARN from existing role: {role_name}')
+        response = iam.get_role(RoleName=role_name)
+        return response['Role']['Arn'] 
+    
+
+
 
 #This is the first commit 
 def get_sagemaker_client(region):
@@ -169,16 +256,11 @@ def get_pipeline(
     pipeline_session = get_pipeline_session(region, default_bucket)
 
     # parameters for pipeline execution
+    endpoint_instance_type = ParameterString(name="EndpointInstanceType", default_value="ml.m5.large")
     processing_instance_count = ParameterInteger(name="ProcessingInstanceCount", default_value=1)
-    model_approval_status = ParameterString(
-        name="ModelApprovalStatus", default_value="PendingManualApproval"
-    )
-    input_data = ParameterString(
-        name="InputDataUrl",
-        #default_value= f"s3://sagemaker-eu-west-2-692736957113/sagemaker/CaliforniaHousingPricesData/data/housing.csv",
-        
-        default_value= f"s3://sagemaker-eu-west-2-484305308880/sagemaker/mg/FeedbackExport_Apr_2021.csv",
-    )
+    model_approval_status = ParameterString(name="ModelApprovalStatus", default_value="PendingManualApproval")
+    input_data = ParameterString(name="InputDataUrl", default_value= f"s3://sagemaker-eu-west-2-484305308880/sagemaker/mg/FeedbackExport_Apr_2021.csv",)
+    training_instance_type = ParameterString(name="TrainingInstanceType",default_value="ml.m5.large")
     
     
       
@@ -317,6 +399,37 @@ def get_pipeline(
     
     
     
+    
+    ########################################################
+    #########Send E-Mail Lambda Step########################
+    ########################################################
+    
+
+    lambda_role = create_s3_lambda_role("send-email-to-ds-team-lambda-role")
+    
+    from sagemaker.workflow.lambda_step import LambdaStep
+    from sagemaker.lambda_helper import Lambda
+
+    evaluation_s3_uri = "{}/evaluation.json".format(
+    step_eval.arguments["ProcessingOutputConfig"]["Outputs"][0]["S3Output"]["S3Uri"]
+    )
+
+    send_email_lambda_function_name = "sagemaker-send-email-to-ds-team-lambda-" + current_time
+
+    send_email_lambda_function = Lambda(
+        function_name=send_email_lambda_function_name,
+        execution_role_arn=lambda_role,
+        script="pipelines/send_email_lambda.py",
+        handler="send_email_lambda.lambda_handler",
+    )
+
+    step_higher_mse_send_email_lambda = LambdaStep(
+        name="Send-Email-To-DS-Team",
+        lambda_func=send_email_lambda_function,
+        inputs={"evaluation_s3_uri": evaluation_s3_uri},
+    )
+    
+        
     #########################################################
     # Register model step that will be conditionally executed
     #########################################################
@@ -343,7 +456,64 @@ def get_pipeline(
         approval_status=model_approval_status,
         model_metrics=model_metrics,
     )
-       
+      
+    ############################################################
+    ################Create the model############################
+    ############################################################
+    from sagemaker.workflow.step_collections import CreateModelStep
+    from sagemaker.tensorflow.model import TensorFlowModel
+
+    model = TensorFlowModel(
+        role=role,
+        model_data= step_train.properties.ModelArtifacts.S3ModelArtifacts,
+        framework_version=tensorflow_version,
+        sagemaker_session=sagemaker_session,
+    )
+
+    step_create_model = CreateModelStep(
+        name="Create-California-Housing-Model",
+        model=model,
+        inputs=sagemaker.inputs.CreateModelInput(instance_type="ml.m5.large"),
+    )
+    
+    
+        
+    ##############################################################
+    ###########Deploy model to SageMaker Endpoint Lambda Step#####
+    ##############################################################
+    
+
+    lambda_role = create_sagemaker_lambda_role("deploy-model-lambda-role")
+    
+    from sagemaker.workflow.lambda_step import LambdaStep
+    from sagemaker.lambda_helper import Lambda
+
+    endpoint_config_name = "tf2-california-housing-endpoint-config"
+    endpoint_name = "tf2-california-housing-endpoint-" + current_time
+
+    deploy_model_lambda_function_name = "sagemaker-deploy-model-lambda-" + current_time
+
+    deploy_model_lambda_function = Lambda(
+        function_name=deploy_model_lambda_function_name,
+        execution_role_arn=lambda_role,
+        script="pipelines/deploy_model_lambda.py",
+        handler="deploy_model_lambda.lambda_handler",
+    )
+
+    step_lower_mse_deploy_model_lambda = LambdaStep(
+        name="Deploy-California-Housing-Model-To-Endpoint",
+        lambda_func=deploy_model_lambda_function,
+            inputs={
+            "model_name": step_create_model.properties.ModelName,
+            "endpoint_config_name": endpoint_config_name,
+            "endpoint_name": endpoint_name,
+            "endpoint_instance_type": endpoint_instance_type,
+        },
+    )
+    
+    
+    ###################################################################
+    
     
     cond_lte = ConditionLessThanOrEqualTo(
         left=JsonGet(
@@ -356,8 +526,8 @@ def get_pipeline(
     step_cond = ConditionStep(
         name="CheckAccuracy",
         conditions=[cond_lte],
-        if_steps=[step_register],
-        else_steps=[],
+        if_steps=[step_register, step_create_model, step_lower_mse_deploy_model_lambda],
+        else_steps=[step_higher_mse_send_email_lambda],
     )
 
 
