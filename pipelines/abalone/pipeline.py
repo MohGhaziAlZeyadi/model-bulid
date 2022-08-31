@@ -349,12 +349,13 @@ def get_pipeline(
         left=JsonGet(
             step_name=step_eval.name,
             property_file=evaluation_report,
-            json_path="eval_accuracy"
+            json_path= multiclass_classification_metrics.acc.value
+            #json_path="eval_accuracy"
         ),
         right=0.6,
     )
     step_cond = ConditionStep(
-        name="CheckMSEAbaloneEvaluation",
+        name="CheckAccuracy",
         conditions=[cond_lte],
         if_steps=[step_register],
         else_steps=[],

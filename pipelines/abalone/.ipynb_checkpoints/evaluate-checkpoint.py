@@ -153,7 +153,7 @@ if __name__ == "__main__":
      # The metrics reported can change based on the model used, but it must be a specific name per (https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor-model-quality-metrics.html)
     report_dict = {
         "multiclass_classification_metrics": {
-            "accuracy": {
+            "acc": {
                 "value": acc,
                 "standard_deviation": "NaN",
         }
