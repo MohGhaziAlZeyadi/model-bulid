@@ -205,56 +205,7 @@ def get_pipeline(
         step_args=step_args,
     )
 
-    # # training step for generating model artifacts
-    # model_path = f"s3://{sagemaker_session.default_bucket()}/{base_job_prefix}/AbaloneTrain"
-    # image_uri = sagemaker.image_uris.retrieve(
-    #     framework="xgboost",
-    #     region=region,
-    #     version="1.0-1",
-    #     py_version="py3",
-    #     instance_type=training_instance_type,
-    # )
-    # xgb_train = Estimator(
-    #     image_uri=image_uri,
-    #     instance_type=training_instance_type,
-    #     instance_count=1,
-    #     output_path=model_path,
-    #     base_job_name=f"{base_job_prefix}/abalone-train",
-    #     sagemaker_session=pipeline_session,
-    #     role=role,
-    # )
-    # xgb_train.set_hyperparameters(
-    #     objective="reg:linear",
-    #     num_round=50,
-    #     max_depth=5,
-    #     eta=0.2,
-    #     gamma=4,
-    #     min_child_weight=6,
-    #     subsample=0.7,
-    #     silent=0,
-    # )
-    # step_args = xgb_train.fit(
-    #     inputs={
-    #         "train": TrainingInput(
-    #             s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
-    #                 "train"
-    #             ].S3Output.S3Uri,
-    #             content_type="text/csv",
-    #         ),
-    #         "validation": TrainingInput(
-    #             s3_data=step_process.properties.ProcessingOutputConfig.Outputs[
-    #                 "validation"
-    #             ].S3Output.S3Uri,
-    #             content_type="text/csv",
-    #         ),
-    #     },
-    # )
-    # step_train = TrainingStep(
-    #     name="TrainAbaloneModel",
-    #     step_args=step_args,
-    # )
-    
-    
+   
     ##############################################
     # Training step for generating model artifacts
     ##############################################
@@ -421,7 +372,7 @@ def get_pipeline(
             input_data,
         ],
         #steps=[step_process, step_train, step_eval, step_cond],
-        steps=[step_process, step_train, step_eval],
+        steps=[step_process, step_train, step_eval, step_cond],
         sagemaker_session=pipeline_session,
     )
     return pipeline
