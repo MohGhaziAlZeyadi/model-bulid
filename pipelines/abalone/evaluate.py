@@ -156,7 +156,7 @@ if __name__ == "__main__":
             "accuracy": {
                 "value": acc,
                 "standard_deviation": "NaN",
-        },
+        }
      }
     }
 
@@ -166,7 +166,9 @@ if __name__ == "__main__":
     output_dir = "/opt/ml/processing/evaluation"
     pathlib.Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-    logger.info("Writing out evaluation report with acc: %f", acc)
+    
     evaluation_path = f"{output_dir}/evaluation.json"
     with open(evaluation_path, "w") as f:
         f.write(json.dumps(report_dict))
+    logger.info("Writing out evaluation report done with acc: %f", acc)
+    logger.info("Evalution Done")
