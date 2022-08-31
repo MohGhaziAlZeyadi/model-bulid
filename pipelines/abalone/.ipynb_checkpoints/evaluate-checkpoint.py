@@ -144,7 +144,8 @@ if __name__ == "__main__":
     print("Loaded Model...")
     model_loded = tf.keras.models.load_model("./model/1")
     print(model_loded.summary())
-    acc = model_loded.evaluate(test_dataset)
+    evalaution = model_loded.evaluate(test_dataset)
+    acc = evalaution[1]
     print("Categorical accuracy: ", acc)
     
     
