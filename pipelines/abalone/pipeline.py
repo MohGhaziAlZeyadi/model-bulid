@@ -534,6 +534,7 @@ def get_pipeline(
     pipeline = Pipeline(
         name=pipeline_name,
         parameters=[
+            endpoint_instance_type,
             processing_instance_type,
             processing_instance_count,
             training_instance_type,
