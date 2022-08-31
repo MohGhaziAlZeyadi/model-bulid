@@ -351,7 +351,7 @@ def get_pipeline(
             property_file=evaluation_report,
             json_path= "multiclass_classification_metrics.acc.value"
         ),
-        right=0.01,
+        right=1.0,
     )
     step_cond = ConditionStep(
         name="CheckAccuracy",
