@@ -332,7 +332,7 @@ def get_pipeline(
 
     # Register model step that will be conditionally executed
     step_register = RegisterModel(
-        name="RegisterAbaloneModel",
+        name="RegisterModel",
         estimator=tf2_estimator,
         model_data=step_train.properties.ModelArtifacts.S3ModelArtifacts,
         content_types=["text/csv"],
@@ -351,7 +351,7 @@ def get_pipeline(
             property_file=evaluation_report,
             json_path= "multiclass_classification_metrics.acc.value"
         ),
-        right=0.1,
+        right=0.01,
     )
     step_cond = ConditionStep(
         name="CheckAccuracy",
