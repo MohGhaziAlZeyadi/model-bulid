@@ -24,6 +24,7 @@ from sagemaker.processing import (
     ProcessingOutput,
     ScriptProcessor,
 )
+
 from sagemaker.sklearn.processing import SKLearnProcessor
 from sagemaker.workflow.conditions import ConditionLessThanOrEqualTo
 from sagemaker.workflow.condition_step import (
@@ -470,7 +471,7 @@ def get_pipeline(
     )
 
     step_create_model = CreateModelStep(
-        name="Create-California-Housing-Model",
+        name="Create-Model",
         model=model,
         inputs=sagemaker.inputs.CreateModelInput(instance_type="ml.m5.large"),
     )
@@ -487,8 +488,8 @@ def get_pipeline(
     from sagemaker.workflow.lambda_step import LambdaStep
     from sagemaker.lambda_helper import Lambda
 
-    endpoint_config_name = "tf2-california-housing-endpoint-config"
-    endpoint_name = "tf2-california-housing-endpoint-" + current_time
+    endpoint_config_name = "tf2endpoint-config"
+    endpoint_name = "tf2-endpoint-" + current_time
 
     deploy_model_lambda_function_name = "sagemaker-deploy-model-lambda-" + current_time
 
@@ -500,7 +501,7 @@ def get_pipeline(
     )
 
     step_lower_mse_deploy_model_lambda = LambdaStep(
-        name="Deploy-California-Housing-Model-To-Endpoint",
+        name="Deploy-Model-To-Endpoint",
         lambda_func=deploy_model_lambda_function,
             inputs={
             "model_name": step_create_model.properties.ModelName,
