@@ -530,7 +530,6 @@ def get_pipeline(
         else_steps=[step_higher_mse_send_email_lambda],
     )
 
-
     # pipeline instance
     pipeline = Pipeline(
         name=pipeline_name,
