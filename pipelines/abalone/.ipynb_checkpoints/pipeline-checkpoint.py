@@ -404,7 +404,6 @@ def get_pipeline(
     #########Send E-Mail Lambda Step########################
     ########################################################
     
-
     lambda_role = create_s3_lambda_role("send-email-to-ds-team-lambda-role")
     
     from sagemaker.workflow.lambda_step import LambdaStep
