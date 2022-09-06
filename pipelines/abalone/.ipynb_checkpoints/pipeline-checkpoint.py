@@ -157,8 +157,6 @@ def create_sagemaker_lambda_role(role_name):
         return response['Role']['Arn'] 
     
 
-    
-
 
 #This is the first commit 
 def get_sagemaker_client(region):
